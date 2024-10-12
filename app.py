@@ -6,13 +6,14 @@ from flask_mail import Mail, Message
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with your secret key
 
-# Configure Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.example.com'  # Replace with your mail server
-app.config['MAIL_PORT'] = 587  # Port number
-app.config['MAIL_USE_TLS'] = True  # Use TLS
-app.config['MAIL_USERNAME'] = 'your_email@example.com'  # Your email
-app.config['MAIL_PASSWORD'] = 'your_password'  # Your email password
-app.config['MAIL_DEFAULT_SENDER'] = 'your_email@example.com'
+# Configure Flask-Mail for MailHog
+app.config['MAIL_SERVER'] = 'localhost'
+app.config['MAIL_PORT'] = 1025  # MailHog SMTP port
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = ''  # No username required
+app.config['MAIL_PASSWORD'] = ''  # No password required
+app.config['MAIL_DEFAULT_SENDER'] = 'test@example.com'  # Set the default sender email address
 
 mail = Mail(app)
 
@@ -52,7 +53,7 @@ def login():
         session['otp'] = otp  # Store OTP in the session
         session['username'] = username  # Store username for later use
 
-        # Send OTP to user's email (assuming email is stored in the database)
+        # Send OTP to user's email
         email = user[2]  # Assuming email is the third column in your table
         send_otp(email, otp)
 
