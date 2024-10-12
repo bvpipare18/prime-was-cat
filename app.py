@@ -1,7 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+
+from flask import Flask, render_template, request, redirect, url_for, flash
 import psycopg2
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Required for session management
+
+app = Flask(__name__)
+
 
 # PostgreSQL database connection
 def get_db_connection():
@@ -30,15 +35,17 @@ def login():
     cur.execute("SELECT * FROM register_users WHERE username = %s AND password = %s", (username, password))
     user = cur.fetchone()
 
-    if user:
-        # User found, log them in (for now, just redirect to the homepage)
-        return redirect(url_for('index'))
-    else:
-        # User not found, redirect to registration page
-        return redirect(url_for('show_register_form'))
 
     cur.close()
     conn.close()
+
+    if user:
+        flash('Login successful!', 'success')  # Flash success message
+        return redirect(url_for('index'))
+    else:
+        flash('Login failed. Please check your credentials.', 'error')  # Flash error message
+        return redirect(url_for('index'))
+
 
 # Route to render the registration page
 @app.route('/register', methods=['GET'])
@@ -55,12 +62,19 @@ def register():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Insert new user details into the register_users table
-    cur.execute("INSERT INTO register_users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
-    conn.commit()
 
-    cur.close()
-    conn.close()
+    try:
+        # Insert new user details into the register_users table
+        cur.execute("INSERT INTO register_users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
+        conn.commit()
+        flash('Registration successful!', 'success')  # Flash success message
+    except Exception as e:
+        conn.rollback()  # Rollback in case of error
+        flash('Registration failed. User may already exist.', 'error')  # Flash error message
+    finally:
+        cur.close()
+        conn.close()
+
 
     return redirect(url_for('index'))
 
