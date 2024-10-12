@@ -1,8 +1,12 @@
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 import psycopg2
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for session management
+
+app = Flask(__name__)
+
 
 # PostgreSQL database connection
 def get_db_connection():
@@ -31,6 +35,7 @@ def login():
     cur.execute("SELECT * FROM register_users WHERE username = %s AND password = %s", (username, password))
     user = cur.fetchone()
 
+
     cur.close()
     conn.close()
 
@@ -40,6 +45,7 @@ def login():
     else:
         flash('Login failed. Please check your credentials.', 'error')  # Flash error message
         return redirect(url_for('index'))
+
 
 # Route to render the registration page
 @app.route('/register', methods=['GET'])
@@ -56,6 +62,7 @@ def register():
     conn = get_db_connection()
     cur = conn.cursor()
 
+
     try:
         # Insert new user details into the register_users table
         cur.execute("INSERT INTO register_users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
@@ -67,6 +74,7 @@ def register():
     finally:
         cur.close()
         conn.close()
+
 
     return redirect(url_for('index'))
 
