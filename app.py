@@ -109,34 +109,6 @@ def register():
 
     return redirect(url_for('index'))
 
-# @app.route('/change_password', methods=['GET', 'POST'])
-# def change_password():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         old_password = request.form['old_password']
-#         new_password = request.form['new_password']
-
-#         conn = get_db_connection()
-#         cur = conn.cursor()
-
-#         # Verify the old password
-#         cur.execute("SELECT * FROM register_users WHERE username = %s AND password = %s", (username, old_password))
-#         user = cur.fetchone()
-
-#         if user:
-#             # Update the password in the database
-#             cur.execute("UPDATE register_users SET password = %s WHERE username = %s", (new_password, username))
-#             conn.commit()
-#             flash('Password changed successfully!', 'success')
-#         else:
-#             flash('Old password is incorrect. Please try again.', 'error')
-
-#         cur.close()
-#         conn.close()
-#         return redirect(url_for('change_password'))
-
-#     return render_template('change_password.html')
-
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
     if request.method == 'POST':
