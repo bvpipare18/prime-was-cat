@@ -145,7 +145,9 @@ def change_password():
 
         return redirect(url_for('change_password'))
 
-    return render_template('change_password.html')
+    # GET request
+    username = request.args.get('username', '')  # Get the username from the query parameters, default to empty string
+    return render_template('change_password.html', username=username)
 
 
 
