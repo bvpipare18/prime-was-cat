@@ -75,7 +75,8 @@ def verify_otp():
     if entered_otp == generated_otp:
         flash('Login successful!', 'success')  # Flash success message
         session.pop('otp', None)  # Clear the OTP from the session
-        return redirect(url_for('index'))
+        # Redirect to the products page after successful login
+        return redirect(url_for('products'))  # Redirect to products page
     else:
         flash('Invalid OTP. Please try again.', 'error')
         return render_template('verify_otp.html')
@@ -184,6 +185,30 @@ def send_reset_link(email, reset_link):
     msg.body = f'Click the following link to reset your password: {reset_link}'
     mail.send(msg)
 
+@app.route('/products')
+def products():
+    # Sample product data (you can replace this with data from your database or an API)
+    products = [
+        {
+            'title': 'Product 1',
+            'price': 19.99,
+            'description': 'This is a great product that you will love.',
+            'image_url': 'https://source.unsplash.com/random/300x200/?product,1'
+        },
+        {
+            'title': 'Product 2',
+            'price': 29.99,
+            'description': 'An amazing product for an amazing price.',
+            'image_url': 'https://source.unsplash.com/random/300x200/?product,2'
+        },
+        {
+            'title': 'Product 3',
+            'price': 39.99,
+            'description': 'The best product you can find on the market.',
+            'image_url': 'https://source.unsplash.com/random/300x200/?product,3'
+        }
+    ]
+    return render_template('product.html', products=products)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
