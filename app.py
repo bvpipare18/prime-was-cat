@@ -147,6 +147,40 @@ def change_password():
 
     return render_template('change_password.html')
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        username_or_email = request.form['username_or_email']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Check if the username or email exists in the database
+        cur.execute("SELECT * FROM register_users WHERE username = %s OR email = %s", (username_or_email, username_or_email))
+        user = cur.fetchone()
+
+        if user:
+            # Generate a password reset link (replace with actual link logic)
+            reset_link = f"http://localhost:5001/change_password?username={user[1]}"  # Assuming username is the second column
+            
+            # Send the reset link to the user's email
+            email = user[2]  # Assuming email is the third column
+            send_reset_link(email, reset_link)
+
+            flash('A password reset link has been sent to your email.', 'success')
+        else:
+            flash('No account found with that username or email.', 'error')
+
+        cur.close()
+        conn.close()
+        return redirect(url_for('forgot_password'))
+
+    return render_template('forgot_password.html')
+
+def send_reset_link(email, reset_link):
+    msg = Message('Password Reset Request', recipients=[email])
+    msg.body = f'Click the following link to reset your password: {reset_link}'
+    mail.send(msg)
 
 
 if __name__ == '__main__':
