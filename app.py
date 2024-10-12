@@ -185,30 +185,50 @@ def send_reset_link(email, reset_link):
     msg.body = f'Click the following link to reset your password: {reset_link}'
     mail.send(msg)
 
-@app.route('/products')
+@app.route('/products', methods=['GET'])
 def products():
-    # Sample product data (you can replace this with data from your database or an API)
-    products = [
-        {
-            'title': 'Product 1',
-            'price': 19.99,
-            'description': 'This is a great product that you will love.',
-            'image_url': 'https://source.unsplash.com/random/300x200/?product,1'
-        },
-        {
-            'title': 'Product 2',
-            'price': 29.99,
-            'description': 'An amazing product for an amazing price.',
-            'image_url': 'https://source.unsplash.com/random/300x200/?product,2'
-        },
-        {
-            'title': 'Product 3',
-            'price': 39.99,
-            'description': 'The best product you can find on the market.',
-            'image_url': 'https://source.unsplash.com/random/300x200/?product,3'
-        }
-    ]
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Fetch all products from the database
+    cur.execute("SELECT * FROM products")
+    products = cur.fetchall()  # Fetch all product rows
+
+    cur.close()
+    conn.close()
+
     return render_template('product.html', products=products)
+
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    if request.method == 'POST':
+        # Get product details from the form
+        name = request.form['name']
+        description = request.form['description']
+        price = request.form['price']
+        image_url = request.form['image_url']
+
+        # Connect to the database and insert the product
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute("INSERT INTO products (name, description, price, image_url) VALUES (%s, %s, %s, %s)",
+                        (name, description, price, image_url))
+            conn.commit()
+            flash('Product added successfully!', 'success')  # Flash success message
+        except Exception as e:
+            conn.rollback()  # Rollback in case of error
+            flash('Failed to add product. Please try again.', 'error')  # Flash error message
+        finally:
+            cur.close()
+            conn.close()
+
+        return redirect(url_for('products'))  # Redirect to the products page after adding
+
+    return render_template('add_product.html')  # Render the form on GET request
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
